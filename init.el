@@ -38,6 +38,11 @@
     (setq initial-frame-alist '( (tool-bar-lines . 0)))
     (setq default-frame-alist '( (tool-bar-lines . 0)))))
 
+(use-package doom-themes
+  :config
+  (load-theme 'doom-molokai t)
+  )
+
 ;; ----------------
 ;; Editing enhancements
 ;; ----------------
@@ -76,6 +81,15 @@
   (setq projectile-indexing-method 'native)
   )
 
+(use-package treemacs
+  :bind
+  (:map global-map
+        ("C-x t t" . treemacs)
+		("C-x t d" . treemacs-select-directory))
+  :config
+  (setq treemacs-is-never-other-window t)
+  )
+
 (use-package ripgrep
   :after projectile)
 
@@ -85,12 +99,12 @@
   )
 
 (use-package centaur-tabs
-  :demand
+  :init
+  (centaur-tabs-mode)
   :config
   (setq centaur-tabs-style "bar")
   (setq centaur-tabs-set-icons t)
   (setq centaur-tabs-cycle-scope 'tabs)
-  (centaur-tabs-mode t)
   (centaur-tabs-headline-match)
   :bind
   (:map global-map
@@ -101,7 +115,6 @@
 (use-package god-mode
   :config
   (global-set-key (kbd "<escape>") #'god-local-mode)
-  ;; (global-set-key (kbd "<escape>") #'god-mode-all)
   (defun my-god-mode-update-cursor-type ()
   (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
   (add-hook 'post-command-hook #'my-god-mode-update-cursor-type)
@@ -166,8 +179,6 @@
 
 (use-package lsp-mode
   :init
-  (setq lsp-keymap-prefix "C-c l")
-  (setq lsp-enable-on-type-formatting nil)
   :hook (
 	 (c-mode . lsp)
 	 (c++-mode . lsp)
@@ -175,6 +186,10 @@
 	 ;; which-key integration
 	 (lsp-mode . lsp-enable-which-key-integration))
   :commands lsp
+  :config
+  (setq lsp-enable-indentation nil)
+  (setq lsp-enable-on-type-formatting nil)
+  ;;  (setq lsp-keymap-prefix "C-c l")
   )
 
 (use-package lsp-ui
@@ -232,6 +247,14 @@
 ;; Appearance
 ;;
 
+(use-package minimap
+  :init
+  (minimap-mode 1)
+  :config
+  (setq minimap-update-delay nil)
+  (setq minimap-window-location "Right")
+  )
+
 (use-package all-the-icons
   :init
   ;; (all-the-icons-install-fonts)
@@ -247,17 +270,13 @@
   (solaire-global-mode +1)
   )
 
-(use-package doom-themes
+(use-package dimmer
+  :init
+  (dimmer-mode t)
   :config
-  (load-theme 'doom-miramare t)
-  ;; (load-theme 'doom-vibrant t)
-  ;; (load-theme 'doom-monokai-octagon t)
-  ;; (load-theme 'doom-tomorrow-night t)
-  ;; (load-theme 'doom-solarized-dark-high-contrast t)
-  ;; (load-theme 'doom-xcode t)
-  ;; (set-face-attribute 'region nil :background
-  ;;                      (face-background 'highlight))
-  )
+  (dimmer-configure-which-key)
+  (dimmer-configure-magit)
+  (dimmer-configure-org))
 
 (use-package dashboard
   :init
@@ -345,9 +364,10 @@
 (setq-default indent-tabs-mode t)
 (setq-default tab-width 4)
 (setq-default electric-indent-mode nil)
-(global-set-key (kbd "RET") 'electric-indent-just-newline)
 
 ;; Keychord Edits
 (global-unset-key (kbd "C-z"))
 (global-unset-key (kbd "C-<wheel-down>"))
 (global-unset-key (kbd "C-<wheel-up>"))
+
+(find-file "~/todo.org")
