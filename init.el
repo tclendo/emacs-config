@@ -88,6 +88,8 @@
 		("C-x t d" . treemacs-select-directory))
   :config
   (setq treemacs-is-never-other-window t)
+  (setq treemacs-user-mode-line-format 'none)
+  (setq treemacs-show-cursoe nil)
   )
 
 (use-package ripgrep
@@ -189,7 +191,7 @@
   :config
   (setq lsp-enable-indentation nil)
   (setq lsp-enable-on-type-formatting nil)
-  ;;  (setq lsp-keymap-prefix "C-c l")
+  (setq lsp-keymap-prefix "C-c l")
   )
 
 (use-package lsp-ui
@@ -276,7 +278,8 @@
   :config
   (dimmer-configure-which-key)
   (dimmer-configure-magit)
-  (dimmer-configure-org))
+  (dimmer-configure-org)
+  )
 
 (use-package dashboard
   :init
@@ -304,7 +307,8 @@
   )
 
 (use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode))
+  :hook (prog-mode . rainbow-delimiters-mode)
+  )
 
 ;;
 ;; Miscellaneous
@@ -363,7 +367,6 @@
 ;; Indentation Fixes
 (setq-default indent-tabs-mode t)
 (setq-default tab-width 4)
-(setq-default electric-indent-mode nil)
 
 ;; Keychord Edits
 (global-unset-key (kbd "C-z"))
