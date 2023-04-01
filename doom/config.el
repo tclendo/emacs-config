@@ -129,7 +129,7 @@
   (setq jiralib2-url              "https://arxantech.atlassian.net"
         jiralib2-auth             'token
         jiralib2-user-login-name  "troy.clendenen@digital.ai"
-        jiralib2-token            "ATATT3xFfGF0N3ld5ygK51BFr6nY172Fqh4jx5DkWaZbYGnZr3CtBJ-rz5WkGVD9qBdMO9Ugnje_dTYeOcTxUP1v4-6AdeH4eUT4JrPi5a2l_G9tFkK4Qmx1A5quV45Y-y6DpxQeM91-wiI5rlD2yS_hYfbnYmqP2oWdk3JrbP08BRTu6hxeJFw=12805EA7"
+        ;; jiralib2-token
 
         ;; NOTE, this directory needs to be in `org-agenda-files'`
         ejira-org-directory       "~/org/"
