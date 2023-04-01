@@ -7,7 +7,7 @@
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
 (setq user-full-name "Troy Clendenen"
-      user-mail-address "troy.clendenen@digital.ai")
+      user-mail-address "troyclendenen@hotmail.com")
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom:
 ;;
@@ -123,47 +123,3 @@
 )
 
 (setq fancy-splash-image "~/Downloads/dai-logo-long-light.png")
-
-(after! ejira
-  :init
-  (setq jiralib2-url              "https://arxantech.atlassian.net"
-        jiralib2-auth             'token
-        jiralib2-user-login-name  "troy.clendenen@digital.ai"
-        ;; jiralib2-token
-
-        ;; NOTE, this directory needs to be in `org-agenda-files'`
-        ejira-org-directory       "~/org/"
-        ejira-projects            '("PLAT")
-
-        ejira-priorities-alist    '(("Highest" . ?A)
-                                    ("High"    . ?B)
-                                    ("Medium"  . ?C)
-                                    ("Low"     . ?D)
-                                    ("Lowest"  . ?E))
-        ejira-scrum-project       "PLAT"
-        ejira-sprint-field        '("Current Sprint")
-        ejira-todo-states-alist   '(("To Do"       . 1)
-                                    ("In Progress" . 2)
-                                    ("Done"        . 3)))
-  :config
-
-  ;; Tries to auto-set custom fields by looking into /editmeta
-  ;; of an issue and an epic.
-  (add-hook 'jiralib2-post-login-hook #'ejira-guess-epic-sprint-fields)
-
-  ;; They can also be set manually if autoconfigure is not used.
-  ;; (setq ejira-sprint-field       'customfield_10001
-  ;;       ejira-epic-field         'customfield_10002
-  ;;       ejira-epic-summary-field 'customfield_10004)
-
-  (require 'ejira-agenda)
-
-  ;; Make the issues visisble in your agenda by adding `ejira-org-directory'
-  ;; into your `org-agenda-files'.
-  (add-to-list 'org-agenda-files ejira-org-directory)
-
-  ;; Add an agenda view to browse the issues that
-  (org-add-agenda-custom-command
-   '("j" "My JIRA issues"
-     ((ejira-jql "resolution = unresolved and assignee = currentUser()"
-                 ((org-agenda-overriding-header "Assigned to me")))))))
