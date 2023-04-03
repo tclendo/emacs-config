@@ -115,11 +115,18 @@
         :desc "add expression"      "a" #'dap-ui-expressions-add
         :desc "remove expression"   "d" #'dap-ui-expressions-remove
 
+        ;; breakpoint
         :prefix ("db" . "Breakpoint")
         :desc "dap breakpoint toggle"      "b" #'dap-breakpoint-toggle
         :desc "dap breakpoint condition"   "c" #'dap-breakpoint-condition
         :desc "dap breakpoint hit count"   "h" #'dap-breakpoint-hit-condition
-        :desc "dap breakpoint log message" "l" #'dap-breakpoint-log-message)
+        :desc "dap breakpoint log message" "l" #'dap-breakpoint-log-message
+
+        ;; stack
+        :prefix ("df" . "Stack")
+        :desc "dap down stack frame"   "d" #'dap-down-stack-frame
+        :desc "dap up stack frame"     "u" #'dap-up-stack-frame
+        :desc "dap switch stack frame" "s" #'dap-switch-stack-frame)
 )
 
 (setq fancy-splash-image "~/Downloads/dai-logo-long-light.png")
