@@ -7,7 +7,7 @@
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
 (setq user-full-name "Troy Clendenen"
-      user-mail-address "troyclendenen@hotmail.com")
+      user-mail-address "troy.clendenen@digital.ai")
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom:
 ;;
@@ -43,7 +43,7 @@
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/org/")
 
-(toggle-frame-fullscreen)
+(toggle-frame-maximized)
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
@@ -79,13 +79,15 @@
 
 (add-hook! lsp-mode
   (lsp-ui-mode)
+  (setq company-minimum-prefix-length 1)
   (setq lsp-ui-doc-enable t)
-  (setq lsp-ui-doc-show-with-mouse t)
   (setq lsp-ui-sideline-enable t)
   (setq lsp-lens-enable t)
   (setq lsp-ui-peek-enable t)
   (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
   (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
+  (setq lsp-insert-final-newline nil)
+  (setq require-final-newline nil)
   )
 
 (after! dap-mode
@@ -126,7 +128,38 @@
         :prefix ("df" . "Stack")
         :desc "dap down stack frame"   "d" #'dap-down-stack-frame
         :desc "dap up stack frame"     "u" #'dap-up-stack-frame
-        :desc "dap switch stack frame" "s" #'dap-switch-stack-frame)
+        :desc "dap switch stack frame" "s" #'dap-switch-stack-frame
+
+        ;; delete
+        :prefix ("dk" . "Kill")
+        :desc "dap delete all sessions" "a" #'dap-delete-all-sessions
+        :desc "dap delete session"      "s" #'dap-delete-session)
 )
+
+(add-hook! emacs-lisp-mode
+  (paredit-mode 1))
+
+(after! clojure-mode
+  (lsp-semantic-tokens-mode 1)
+  (paredit-mode 1))
+
+(after! cider-mode
+  (lsp-semantic-tokens-mode 1)
+  (paredit-mode 1))
+
+;; Guardspec syntax highlighting
+(add-to-list 'auto-mode-alist '("\\.gsml\\'" . (lambda ()
+                                                 (html-mode)
+                                                 (flycheck-mode -1))))
+;; hideshow keybindings
+(add-hook 'prog-mode-hook 'hs-minor-mode)
+(progn
+  (setq hs-minor-mode-map (make-sparse-keymap))
+  (define-key hs-minor-mode-map (kbd "C-c h s a") 'hs-show-all)
+  (define-key hs-minor-mode-map (kbd "C-c h h a") 'hs-hide-all)
+  (define-key hs-minor-mode-map (kbd "C-c h s b") 'hs-show-block)
+  (define-key hs-minor-mode-map (kbd "C-c h h b") 'hs-hide-block)
+  (define-key hs-minor-mode-map (kbd "C-c h h l") 'hs-hide-level)
+  )
 
 (setq fancy-splash-image "~/Downloads/dai-logo-long-light.png")
