@@ -1,4 +1,3 @@
-
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -46,11 +45,13 @@
 
 ;; Set the theme
 (use-package doom-themes
-  :config (setq doom-dark+-blue-modeline t)
-  (load-theme 'doom-dark+ t))
+  :config 
+  (load-theme 'doom-oceanic-next t)
+  (doom-themes-org-config))
 
 (use-package doom-modeline
-  :init (doom-modeline-mode 1))
+  :init (doom-modeline-mode 1)
+  )
 
 (use-package solaire-mode
   :init (solaire-global-mode +1)
@@ -87,13 +88,25 @@
 
 ;; Editing enhancements
 (use-package vertico
+  :straight (:files (:defaults "extensions/*"))
   :init (vertico-mode 1))
+(use-package vertico-directory
+  :after vertico
+  :straight nil
+  :bind (:map vertico-map
+	      ("RET" . vertico-directory-enter)
+	      ("DEL" . vertico-directory-delete-char)
+	      ("M-DEL" . vertico-directory-delete-word)))
 
-;; (use-package ivy
-;;   :init (ivy-mode t)
-;;   :config
-;;   (setq ivy-initial-inputs-alist nil)
-;;   (add-hook 'minibuffer-setup-hook 'ivy-mode))
+(use-package consult
+  :bind ("C-x b" . consult-buffer)
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+  :config )
+
+(use-package orderless
+  :config
+  (setq completion-styles '(orderless basic))
+  (setq completion-category-overrides '((file (styles basic partial-completion)))))
 
 (use-package which-key
   :config
@@ -120,8 +133,7 @@
   :bind (:map global-map
 	      ("C-c o p" . treemacs))
   :config
-  (setq treemacs-is-never-other-window t)
-  (setq treemacs-show-cursor nil))
+  (setq treemacs-is-never-other-window t))
 
 (use-package god-mode
   :config
@@ -131,15 +143,32 @@
   (add-hook 'post-command-hook #'my-god-mode-update-cursor-type))
 
 (use-package mini-frame
-  :init (mini-frame-mode t))
+  :init (mini-frame-mode t)
+  :config (custom-set-variables
+	   '(mini-frame-show-parameters
+	     '((top . 10)
+	       (width . 0.7)
+	       (left . 0.5)))))
+
+(use-package centaur-tabs
+  :init (centaur-tabs-mode t)
+  :bind
+  ("C-<tab>" . centaur-tabs-forward)
+  ("C-S-<tab>" . centaur-tabs-backward)
+  :hook ((minimap-mode . centaur-tabs-mode))
+  :config
+  (setq centaur-tabs-set-icons t)
+  (setq centaur-tabs-set-bar 'under)
+  (setq centaur-tabs-set-modified-marker t)
+  )
 
 (use-package minimap
   :bind (:map global-map ("C-c t m" . minimap-mode))
   :config
+  ;(setq minimap-buffer-name "Minimap") ; for centaur tabs
   (setq minimap-update-delay 0)
   (setq minimap-highlight-line nil)
   (setq minimap-window-location 'right)
-  (setq minimap-dedicated-window nil)
   (setq minimap-width-fraction 0.10))
 
 (use-package company
@@ -184,6 +213,10 @@
   :config
   (yas-reload-all)
   :hook (company-mode . yas-minor-mode))
+
+;; C/C++ Settings
+(setq c-backspace-function 'delete-backward-char)
+(setq c-hungry-delete-key t)
 
 ;; LLVM IR highlighting
 (straight-use-package
