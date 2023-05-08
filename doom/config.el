@@ -32,8 +32,9 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-dark+)
-(setq doom-dark+-blue-modeline t)
+(setq doom-theme 'doom-vibrant)
+;; (setq doom-theme 'doom-one-light)
+(setq doom-themes-treemacs-enable-variable-pitch nil)
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -136,14 +137,25 @@
         :desc "dap delete session"      "s" #'dap-delete-session)
 )
 
+(after! centaur-tabs-mode
+  (setq centaur-tabs-set-bar 'under)
+  (setq x-underline-at-descent-line t))
+
+(after! god-mode
+  (global-set-key (kbd "<escape>") #'god-local-mode)
+  (defun my-god-mode-update-cursor-type ()
+    (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
+  (add-hook 'post-command-hook #'my-god-mode-update-cursor-type)
+  (setq god-global-mode nil))
+
 (add-hook! emacs-lisp-mode
   (paredit-mode 1))
 
-(after! clojure-mode
+(add-hook! clojure-mode
   (lsp-semantic-tokens-mode 1)
   (paredit-mode 1))
 
-(after! cider-mode
+(add-hook! cider-mode
   (lsp-semantic-tokens-mode 1)
   (paredit-mode 1))
 
@@ -163,3 +175,8 @@
   )
 
 (setq fancy-splash-image "~/Downloads/dai-logo-long-light.png")
+
+(add-hook! company-mode
+  (company-quickhelp-mode 1))
+
+(dimmer-mode t)
