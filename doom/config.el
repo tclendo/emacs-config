@@ -78,8 +78,11 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
-(add-hook! lsp-mode
-  (lsp-ui-mode)
+;; Enable minibuffer-frame
+;; (mini-frame-mode)
+
+(after! lsp-mode
+  (lsp-ui-mode t)
   (setq company-minimum-prefix-length 1)
   (setq lsp-ui-doc-enable t)
   (setq lsp-ui-sideline-enable t)
@@ -88,8 +91,7 @@
   (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
   (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
   (setq lsp-insert-final-newline nil)
-  (setq require-final-newline nil)
-  )
+  (setq require-final-newline nil))
 
 (after! dap-mode
   (map! :map dap-mode-map
@@ -135,11 +137,15 @@
         :prefix ("dk" . "Kill")
         :desc "dap delete all sessions" "a" #'dap-delete-all-sessions
         :desc "dap delete session"      "s" #'dap-delete-session)
-)
+  )
 
-(after! centaur-tabs-mode
-  (setq centaur-tabs-set-bar 'under)
-  (setq x-underline-at-descent-line t))
+(global-tree-sitter-mode 1)
+(add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+
+(after! centaur-tabs
+  (setq centaur-tabs-set-bar 'over)
+  (setq x-underline-at-descent-line t)
+  (setq centaur-tabs-excluded-prefixes (list "*")))
 
 (after! god-mode
   (global-set-key (kbd "<escape>") #'god-local-mode)
@@ -150,16 +156,22 @@
 
 (add-hook! emacs-lisp-mode
   (paredit-mode 1))
-
 (add-hook! clojure-mode
-  (lsp-semantic-tokens-mode 1)
   (paredit-mode 1))
-
 (add-hook! cider-mode
-  (lsp-semantic-tokens-mode 1)
   (paredit-mode 1))
 
-;; Guardspec syntax highlighting
+(after! popper
+  (map! "C-c C-'" #'popper-toggle-latest
+        "C-c C-\"" #'popper-cycle)
+  (setq popper-reference-buffers
+        '("\\*vterm\\*$" vterm-mode
+          "^\\*cider-repl.*"
+          "\\*helpful-command.*"
+          help-mode)))
+(popper-mode +1)
+
+;; Guardspec syntax highlighting (but no linting)
 (add-to-list 'auto-mode-alist '("\\.gsml\\'" . (lambda ()
                                                  (html-mode)
                                                  (flycheck-mode -1))))
@@ -171,8 +183,7 @@
   (define-key hs-minor-mode-map (kbd "C-c h h a") 'hs-hide-all)
   (define-key hs-minor-mode-map (kbd "C-c h s b") 'hs-show-block)
   (define-key hs-minor-mode-map (kbd "C-c h h b") 'hs-hide-block)
-  (define-key hs-minor-mode-map (kbd "C-c h h l") 'hs-hide-level)
-  )
+  (define-key hs-minor-mode-map (kbd "C-c h h l") 'hs-hide-level))
 
 (setq fancy-splash-image "~/Downloads/dai-logo-long-light.png")
 

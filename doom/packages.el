@@ -51,3 +51,4 @@
 
 (package! company-quickhelp)
 (package! dimmer)
+(package! popper)
