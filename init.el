@@ -16,26 +16,26 @@
   :custom (straight-use-package-by-default t))
 
 ;; Set Emacs screen bounds when not on terminal
-(if (display-graphic-p)
-    (progn
-      (set-face-attribute 'default nil :height 160)
-      (setq initial-frame-alist
-            '(
-              (tool-bar-lines . 0)
-              (width . 90) ; chars
-              (height . 40) ; lines
-              (fullscreen . maximized)
-	      ))
-      (setq default-frame-alist
-            '(
-              (tool-bar-lines . 0)
-              (width . 90)
-              (height . 40)
-              (fullscreen . maximized)
-	      )))
-  (progn
-    (setq initial-frame-alist '( (tool-bar-lines . 0)))
-    (setq default-frame-alist '( (tool-bar-lines . 0)))))
+;; (if (display-graphic-p)
+;;     (progn
+;;       (set-face-attribute 'default nil :height 160)
+;;       (setq initial-frame-alist
+;;             '(
+;;               (tool-bar-lines . 0)
+;;               (width . 90) ; chars
+;;               (height . 40) ; lines
+;;               (fullscreen . maximized)
+;; 	      ))
+;;       (setq default-frame-alist
+;;             '(
+;;               (tool-bar-lines . 0)
+;;               (width . 90)
+;;               (height . 40)
+;;               (fullscreen . maximized)
+;; 	      )))
+;;   (progn
+;;     (setq initial-frame-alist '( (tool-bar-lines . 0)))
+;;     (setq default-frame-alist '( (tool-bar-lines . 0)))))
 
 ;; Install fonts
 (use-package all-the-icons
@@ -49,20 +49,14 @@
   (load-theme 'doom-vibrant t)
   (doom-themes-org-config))
 
-(use-package smart-mode-line
-  :init (sml/setup)
-  :config (setq sml/theme 'respectful)
-  (setq sml/shorten-directory t)
-  (setq sml/name-width 20))
-
-(use-package diminish
-  :diminish which-key-mode
-  :diminish eldoc-mode
-  :diminish abbrev-mode)
+;; (use-package smart-mode-line
+;;   :init (sml/setup)
+;;   :config (setq sml/theme 'respectful)
+;;   (setq sml/shorten-directory t)
+;;   (setq sml/name-width 20))
 
 (use-package solaire-mode
-  :init (solaire-global-mode +1)
-  )
+  :init (solaire-global-mode +1))
 
 (use-package dimmer
   :init
@@ -101,8 +95,7 @@
   (popper-mode +1)
   :bind (("C-'"   . popper-toggle-latest)
          ("C-\""  . popper-cycle)
-         ("C-M-'" . popper-toggle-type))
-  )
+         ("C-M-'" . popper-toggle-type)))
 
 ;; Editing enhancements
 (use-package vertico
@@ -126,7 +119,6 @@
   (setq completion-category-overrides '((file (styles basic partial-completion)))))
 
 (use-package which-key
-  :diminish which-key-mode
   :config
   (add-hook 'after-init-hook 'which-key-mode)
   (setq which-key-popup-type 'minibuffer))
@@ -140,8 +132,9 @@
   :config (global-set-key (kbd "C-c g") 'magit-file-dispatch))
 
 (use-package projectile
-  :diminish projectile-mode
   :init (projectile-mode)
+  :bind (:map projectile-mode-map
+	      ("C-c p s" . consult-ripgrep))
   :config
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (setq projectile-indexing-method 'native))
@@ -168,7 +161,6 @@
   (setq centaur-tabs-excluded-prefixes (list "*")))
 
 (use-package minimap
-  :diminish minimap-mode
   :bind (:map global-map ("C-c t m" . minimap-mode))
   :config
   (setq minimap-update-delay 0)
@@ -177,7 +169,6 @@
   (setq minimap-width-fraction 0.10))
 
 (use-package company
-  :diminish company-mode
   :hook ((emacs-lisp-mode . company-mode)
 	 (prog-mode . company-mode)
 	 (text-mode . company-mode)
@@ -196,17 +187,16 @@
     (add-hook 'company-mode-hook 'display-line-numbers-mode)))
 
 (use-package company-quickhelp
-  :diminish company-quickhelp-mode
   :init (company-quickhelp-mode)
   :config
   (setq company-quickhelp-delay 3)
   (eval-after-load 'company
     '(define-key company-active-map (kbd "C-c h") #'company-quickhelp-manual-begin)))
 
+(use-package flycheck)
+
 ;; Language Servers
 (use-package lsp-mode
-  
-  :diminish lsp-lens-mode
   :hook ((c-mode . lsp)
 	 (c++-mode . lsp)
 	 (rust-mode . lsp)
@@ -216,20 +206,20 @@
   :config
   (setq lsp-insert-final-newline nil)
   (setq lsp-headerline-breadcrumb-enable nil)
+
+  
   :commands lsp)
 (setq lsp-keymap-prefix "C-c l")
 
 (use-package lsp-ui
   :commands lsp-ui-mode
   :config
+  (setq lsp-diagnostics-provider :flycheck)
   (setq lsp-ui-sideline-show-diagnostics t)
   (setq lsp-ui-sideline-show-code-actions t)
-  (setq lsp-diagnostics-provider :auto)
-  (setq lsp-ui-doc-show-with-mouse nil)
-)
+  (setq lsp-ui-doc-show-with-mouse nil))
 
-(use-package tree-sitter
-  :diminish tree-sitter-mode)
+(use-package tree-sitter)
 (use-package tree-sitter-langs)
 (global-tree-sitter-mode)
 (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
@@ -262,7 +252,6 @@
 (require 'dap-lldb)
 
 (use-package yasnippet
-  :diminish yas-minor-mode
   :config (yas-reload-all)
   :hook (company-mode . yas-minor-mode))
 
@@ -303,8 +292,6 @@
 
 ;; ripgrep
 (use-package ripgrep)
-
-(diminish 'auto-revert-mode)
 
 ;; Default emacs settings
 (tool-bar-mode -1)
@@ -353,3 +340,22 @@
 (add-to-list 'auto-mode-alist '("\\.gsml\\'" . (lambda ()
                                                  (html-mode)
                                                  (flycheck-mode -1))))
+
+(use-package diminish
+  :config
+  (diminish 'which-key-mode)
+  (diminish 'eldoc-mode)
+  (diminish 'abbrev-mode)
+  (diminish 'hs-minor-mode)
+  (diminish 'auto-revert-mode)
+  (diminish 'lsp-mode "lsp")
+  (diminish 'company-mode)
+  (add-hook 'yas-minor-mode-hook (lambda ()
+								   (diminish 'yas-minor-mode)))
+  (add-hook 'lsp-lens-mode-hook (lambda ()
+								  (diminish 'lsp-lens-mode)))
+  (add-hook 'paredit-mode-hook (lambda ()
+								 (diminish 'paredit-mode "par")))
+  (diminish 'projectile-mode)
+  (diminish 'tree-sitter-mode)
+  (diminish 'flycheck-mode))
