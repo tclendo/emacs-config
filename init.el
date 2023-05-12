@@ -37,6 +37,9 @@
 ;;     (setq initial-frame-alist '( (tool-bar-lines . 0)))
 ;;     (setq default-frame-alist '( (tool-bar-lines . 0)))))
 
+(use-package ns-auto-titlebar
+  :init (when (eq system-type 'darwin) (ns-auto-titlebar-mode)))
+
 ;; Install fonts
 (use-package all-the-icons
   :init
@@ -75,6 +78,9 @@
 (use-package dashboard
   :init
   (dashboard-setup-startup-hook)
+  :bind (:map dashboard-mode-map
+			  ("n" . dashboard-next-line)
+			  ("p" . dashboard-previous-line))
   :config
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
@@ -83,8 +89,7 @@
   (setq dashboard-set-navigator t)
   (setq dashboard-set-footer nil)
   (setq dashboard-center-content t)
-  (setq dashboard-items '((recents . 5)
-			  (projects . 5))))
+  (setq dashboard-items '((recents . 5))))
 
 (use-package popper
   :init
@@ -110,8 +115,12 @@
 	      ("M-DEL" . vertico-directory-delete-word)))
 
 (use-package consult
-  :bind ("C-x b" . consult-buffer)
+  :bind (("C-x b" . consult-buffer)
+		 ("M-g g" . consult-goto-line))
   :hook (completion-list-mode . consult-preview-at-point-mode))
+
+(use-package marginalia
+  :init (marginalia-mode 1))
 
 (use-package orderless
   :config
@@ -130,24 +139,27 @@
 
 (use-package magit
   :config (global-set-key (kbd "C-c g") 'magit-file-dispatch))
+(use-package git-gutter-fringe
+  :init (global-git-gutter-mode +1)
+  :config (setq git-gutter-fr:side 'right-fringe))
 
 (use-package projectile
   :init (projectile-mode)
   :bind (:map projectile-mode-map
-	      ("C-c p s" . consult-ripgrep))
+			  ("C-c p s" . consult-ripgrep))
   :config
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (setq projectile-indexing-method 'native))
 
 (use-package treemacs
-  :bind (:map global-map ("C-c o p" . treemacs))
+  :bind (:map global-map ("C-c t t" . treemacs))
   :config (setq treemacs-is-never-other-window t))
 
 (use-package god-mode
   :config
   (global-set-key (kbd "<escape>") #'god-local-mode)
   (defun my-god-mode-update-cursor-type ()
-  (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
+	(setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
   (add-hook 'post-command-hook #'my-god-mode-update-cursor-type))
 
 (use-package centaur-tabs
@@ -170,9 +182,11 @@
 
 (use-package company
   :hook ((emacs-lisp-mode . company-mode)
-	 (prog-mode . company-mode)
-	 (text-mode . company-mode)
-	 (cider-repl-mode . company-mode))
+		 (prog-mode . company-mode)
+		 (text-mode . company-mode)
+		 (cider-repl-mode . company-mode))
+  :bind (:map company-active-map
+			  ("C-<return>" . company-complete-selection))
   :config
   (setq company-dabbrev-downcase t)
   (setq company-idle-delay 0.3)
@@ -180,8 +194,6 @@
   (setq company-tooltip-align-annotations t)
   (define-key company-active-map (kbd "RET") nil)
   (define-key company-active-map (kbd "<return>") nil)
-  (define-key company-active-map (kbd "TAB") 'company-complete-selection)
-  (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
   (with-eval-after-load "company"
     (add-hook 'company-mode-hook 'electric-pair-mode)
     (add-hook 'company-mode-hook 'display-line-numbers-mode)))
@@ -194,20 +206,20 @@
     '(define-key company-active-map (kbd "C-c h") #'company-quickhelp-manual-begin)))
 
 (use-package flycheck)
+(use-package ws-butler
+  :hook (prog-mode . ws-butler-mode))
 
 ;; Language Servers
 (use-package lsp-mode
   :hook ((c-mode . lsp)
-	 (c++-mode . lsp)
-	 (rust-mode . lsp)
-	 (clojure-mode . lsp)
-	 (cider-repl-mode . lsp)
-	 (lsp-mode . lsp-enable-which-key-integration))
+		 (c++-mode . lsp)
+		 (rust-mode . lsp)
+		 (clojure-mode . lsp)
+		 (cider-repl-mode . lsp)
+		 (lsp-mode . lsp-enable-which-key-integration))
   :config
   (setq lsp-insert-final-newline nil)
   (setq lsp-headerline-breadcrumb-enable nil)
-
-  
   :commands lsp)
 (setq lsp-keymap-prefix "C-c l")
 
@@ -216,7 +228,7 @@
   :config
   (setq lsp-diagnostics-provider :flycheck)
   (setq lsp-ui-sideline-show-diagnostics t)
-  (setq lsp-ui-sideline-show-code-actions t)
+  ;; (setq lsp-ui-sideline-show-code-actions t)
   (setq lsp-ui-doc-show-with-mouse nil))
 
 (use-package tree-sitter)
@@ -224,31 +236,34 @@
 (global-tree-sitter-mode)
 (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
 
+(use-package dtrt-indent
+  :init (dtrt-indent-mode 1))
+
 (use-package dap-mode
   :bind (:map dap-mode-map
-	      ("C-c d n" . dap-next)
-	      ("C-c d i" . dap-step-in)
-	      ("C-c d o" . dap-step-out)
-	      ("C-c d c" . dap-continue)
-	      ("C-c d r" . dap-debug-restart)
-	      ("C-c d s" . dap-debug)
-	      ("C-c d d t" . dap-debug-edit-template)
-	      ("C-c d d r" . dap-debug-recent)
-	      ("C-c d d l" . dap-debug-last)
-	      ("C-c d e e" . dap-eval)
-	      ("C-c d e r" . dap-eval-region)
-	      ("C-c d e s" . dap-eval-thing-at-point)
-	      ("C-c d e a" . dap-ui-expressions-add)
-	      ("C-c d e d" . dap-ui-expressions-remove)
-	      ("C-c d b t" . dap-breakpoint-toggle)
-	      ("C-c d b c" . dap-breakpoint-condition)
-	      ("C-c d b h" . dap-breakpoint-hit-condition)
-	      ("C-c d b l" . dap-breakpoint-log-message)
-	      ("C-c d f d" . dap-down-stack-frame)
-	      ("C-c d f u" . dap-up-stack-frame)
-	      ("C-c d f s" . dap-switch-stack-frame)
-	      ("C-c d k a" . dap-delete-all-sessions)
-	      ("C-c d k s" . dap-delete-session)))
+			  ("C-c d n" . dap-next)
+			  ("C-c d i" . dap-step-in)
+			  ("C-c d o" . dap-step-out)
+			  ("C-c d c" . dap-continue)
+			  ("C-c d r" . dap-debug-restart)
+			  ("C-c d s" . dap-debug)
+			  ("C-c d d t" . dap-debug-edit-template)
+			  ("C-c d d r" . dap-debug-recent)
+			  ("C-c d d l" . dap-debug-last)
+			  ("C-c d e e" . dap-eval)
+			  ("C-c d e r" . dap-eval-region)
+			  ("C-c d e s" . dap-eval-thing-at-point)
+			  ("C-c d e a" . dap-ui-expressions-add)
+			  ("C-c d e d" . dap-ui-expressions-remove)
+			  ("C-c d b t" . dap-breakpoint-toggle)
+			  ("C-c d b c" . dap-breakpoint-condition)
+			  ("C-c d b h" . dap-breakpoint-hit-condition)
+			  ("C-c d b l" . dap-breakpoint-log-message)
+			  ("C-c d f d" . dap-down-stack-frame)
+			  ("C-c d f u" . dap-up-stack-frame)
+			  ("C-c d f s" . dap-switch-stack-frame)
+			  ("C-c d k a" . dap-delete-all-sessions)
+			  ("C-c d k s" . dap-delete-session)))
 (require 'dap-lldb)
 
 (use-package yasnippet
@@ -271,8 +286,8 @@
 
 (use-package paredit
   :hook ((clojure-mode . paredit-mode)
-	 (cider-repl-mode . paredit-mode)
-	 (emacs-lisp-mode . paredit-mode)))
+		 (cider-repl-mode . paredit-mode)
+		 (emacs-lisp-mode . paredit-mode)))
 
 ;; Clojure support
 (use-package clojure-mode
@@ -286,9 +301,7 @@
 
 ;; vterm
 (use-package vterm
-  :bind (:map global-map
-	      ("C-c v v" . vterm)
-	      ("C-c v o" . vterm-other-window)))
+  :bind (:map global-map ("C-c v v" . vterm)))
 
 ;; ripgrep
 (use-package ripgrep)
@@ -299,7 +312,9 @@
 (scroll-bar-mode -1)
 (blink-cursor-mode 1)
 (delete-selection-mode 1)
+(size-indication-mode 1)
 (column-number-mode t)
+(add-hook 'prog-mode-hook 'hl-line-mode)
 (set-face-background 'line-number nil)
 (setq scroll-conservatively 101)
 (setq inhibit-startup-message t)
@@ -350,12 +365,14 @@
   (diminish 'auto-revert-mode)
   (diminish 'lsp-mode "lsp")
   (diminish 'company-mode)
-  (add-hook 'yas-minor-mode-hook (lambda ()
-								   (diminish 'yas-minor-mode)))
-  (add-hook 'lsp-lens-mode-hook (lambda ()
-								  (diminish 'lsp-lens-mode)))
-  (add-hook 'paredit-mode-hook (lambda ()
-								 (diminish 'paredit-mode "par")))
+  (add-hook 'ws-butler-mode-hook
+			(lambda () (diminish 'ws-butler-mode)))
+  (add-hook 'yas-minor-mode-hook
+			(lambda () (diminish 'yas-minor-mode)))
+  (add-hook 'lsp-lens-mode-hook
+			(lambda () (diminish 'lsp-lens-mode)))
+  (add-hook 'paredit-mode-hook
+			(lambda () (diminish 'paredit-mode "par")))
   (diminish 'projectile-mode)
   (diminish 'tree-sitter-mode)
   (diminish 'flycheck-mode))
