@@ -16,29 +16,26 @@
   :custom (straight-use-package-by-default t))
 
 ;; Set Emacs screen bounds when not on terminal
-(if (display-graphic-p)
-    (progn
-      (set-face-attribute 'default nil :height 160)
-      (setq initial-frame-alist
-            '(
-              (tool-bar-lines . 0)
-              (width . 90) ; chars
-              (height . 40) ; lines
-              (fullscreen . maximized)
-	      ))
-      (setq default-frame-alist
-            '(
-              (tool-bar-lines . 0)
-              (width . 90)
-              (height . 40)
-              (fullscreen . maximized)
-	      )))
-  (progn
-    (setq initial-frame-alist '( (tool-bar-lines . 0)))
-    (setq default-frame-alist '( (tool-bar-lines . 0)))))
-
-(use-package ns-auto-titlebar
-  :init (when (eq system-type 'darwin) (ns-auto-titlebar-mode)))
+;; (if (display-graphic-p)
+;;     (progn
+;;       (set-face-attribute 'default nil :height 160)
+;;       (setq initial-frame-alist
+;;             '(
+;;               (tool-bar-lines . 0)
+;;               (width . 90) ; chars
+;;               (height . 40) ; lines
+;;               (fullscreen . maximized)
+;; 	      ))
+;;       (setq default-frame-alist
+;;             '(
+;;               (tool-bar-lines . 0)
+;;               (width . 90)
+;;               (height . 40)
+;;               (fullscreen . maximized)
+;; 	      )))
+;;   (progn
+;;     (setq initial-frame-alist '( (tool-bar-lines . 0)))
+;;     (setq default-frame-alist '( (tool-bar-lines . 0)))))
 
 ;; Install fonts
 (use-package all-the-icons
@@ -49,7 +46,7 @@
 ;; Set the theme
 (use-package doom-themes
   :config 
-  (load-theme 'doom-vibrant t)
+  (load-theme 'doom-solarized-dark-high-contrast t)
   (doom-themes-org-config))
 
 (use-package solaire-mode
@@ -98,6 +95,8 @@
   (setq popper-mode-line nil))
 
 ;; Editing enhancements
+
+;; vertical buffer and completion layouts
 (use-package vertico
   :straight (:files (:defaults "extensions/*"))
   :init (vertico-mode 1))
@@ -109,36 +108,44 @@
 	      ("DEL" . vertico-directory-delete-char)
 	      ("M-DEL" . vertico-directory-delete-word)))
 
+;; previews and snappiness for buffers and searches
 (use-package consult
   :bind (("C-x b" . consult-buffer)
 		 ("M-g g" . consult-goto-line))
   :hook (completion-list-mode . consult-preview-at-point-mode))
 
+;; C-x b and C-x C-f coolness
 (use-package marginalia
-  :init
-  (marginalia-mode 1))
+  :init (marginalia-mode 1))
 
+;; better completions, oh my!
 (use-package orderless
   :config
   (setq completion-styles '(orderless basic))
   (setq completion-category-overrides '((file (styles basic partial-completion)))))
 
+;; which key
 (use-package which-key
   :config
   (add-hook 'after-init-hook 'which-key-mode)
   (setq which-key-popup-type 'minibuffer))
 
+;; org mode
 (use-package org
   :config
   (add-hook 'org-mode-hook 'org-indent-mode)
   (setq org-startup-truncated nil))
 
+;; git coolness
 (use-package magit
-  :config (global-set-key (kbd "C-c g") 'magit-file-dispatch))
+  :config
+  (global-set-key (kbd "C-c g") 'magit-file-dispatch)
+  (setq magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1))
 (use-package git-gutter-fringe
   :init (global-git-gutter-mode +1)
   :config (setq git-gutter-fr:side 'right-fringe))
 
+;; TODO: remove?
 (use-package projectile
   :init (projectile-mode)
   :bind (:map projectile-mode-map
@@ -147,10 +154,12 @@
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (setq projectile-indexing-method 'alien))
 
+;; I don't use this but it's fun to screenshot
 (use-package treemacs
   :bind (:map global-map ("C-c t t" . treemacs))
   :config (setq treemacs-is-never-other-window t))
 
+;; sometime C- is too much
 (use-package god-mode
   :config
   (global-set-key (kbd "<escape>") #'god-local-mode)
@@ -158,6 +167,7 @@
 	(setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
   (add-hook 'post-command-hook #'my-god-mode-update-cursor-type))
 
+;; Shhh, this is how I check if a buffer is saved lol
 (use-package centaur-tabs
   :init (centaur-tabs-mode t)
   :bind
@@ -168,6 +178,7 @@
   (setq centaur-tabs-set-bar 'under)
   (setq centaur-tabs-excluded-prefixes (list "*")))
 
+;; See treemacs
 (use-package minimap
   :bind (:map global-map ("C-c t m" . minimap-mode))
   :config
@@ -176,6 +187,7 @@
   (setq minimap-window-location 'right)
   (setq minimap-width-fraction 0.10))
 
+;; The one company I'm a shill for
 (use-package company
   :hook ((emacs-lisp-mode . company-mode)
 		 (prog-mode . company-mode)
@@ -194,13 +206,15 @@
     (add-hook 'company-mode-hook 'electric-pair-mode)
     (add-hook 'company-mode-hook 'display-line-numbers-mode)))
 
+;; I finally got this to work
 (use-package company-quickhelp
   :init (company-quickhelp-mode)
   :config
-  (setq company-quickhelp-delay 3)
+  (setq company-quickhelp-delay 2)
   (eval-after-load 'company
     '(define-key company-active-map (kbd "C-c h") #'company-quickhelp-manual-begin)))
 
+;; sanitizing code so you don't have to
 (use-package flycheck)
 (use-package ws-butler
   :hook (prog-mode . ws-butler-mode))
@@ -231,14 +245,27 @@
   ;; (setq lsp-ui-sideline-show-code-actions t)
   (setq lsp-ui-doc-show-with-mouse nil))
 
+;; Faster syntax highlighting
 (use-package tree-sitter)
 (use-package tree-sitter-langs)
 (global-tree-sitter-mode)
 (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
 
+;; FIXME does this do what it's supposed to?
 (use-package dtrt-indent
   :init (dtrt-indent-mode 1))
 
+;; TODO FIXME DEBUG GOTCHA STUB
+(use-package hl-todo
+  :init (global-hl-todo-mode 1)
+  :config (setq hl-todo-keyword-faces
+				'(("TODO"   . "#FF0000")
+				  ("FIXME"  . "#FF0000")
+				  ("DEBUG"  . "#A020F0")
+				  ("GOTCHA" . "#FF4500")
+				  ("STUB"   . "#1E90FF"))))
+
+;; Fine Eric, I'll set up a debugger
 (use-package dap-mode
   :bind (:map dap-mode-map
 			  ("C-c d n" . dap-next)
@@ -266,10 +293,12 @@
 			  ("C-c d k s" . dap-delete-session)))
 (require 'dap-lldb)
 
+;; I'm supposed to use-package this, but I never use it
 (use-package yasnippet
   :config (yas-reload-all)
   :hook (company-mode . yas-minor-mode))
 
+;; Pretty elisp popups
 (use-package eros
   :init (eros-mode 1))
 
@@ -292,6 +321,7 @@
 ;; Go support
 (use-package go-mode)
 
+;; Structural editing is pretty cool tbh
 (use-package paredit
   :hook ((clojure-mode . paredit-mode)
 		 (cider-repl-mode . paredit-mode)
@@ -326,14 +356,27 @@
 (setq scroll-conservatively 101)
 (setq inhibit-startup-message t)
 (setq mode-require-final-newline nil)
+;; macos stuff
 (setq mac-command-modifier      'super
       ns-command-modifier       'super
       mac-option-modifier       'meta
       ns-option-modifier        'meta
       mac-right-option-modifier 'none
       ns-right-option-modifier  'none)
+(use-package ns-auto-titlebar
+  :init (when (eq system-type 'darwin) (ns-auto-titlebar-mode)))
 
-;; (Add-hook 'prog-mode-hook 'hs-minor-mode)
+;; project.el configurations:
+(setq project-switch-commands
+	  '((project-find-file "Find file")
+		(consult-ripgrep "Find regexp")
+		(project-find-dir "Find directory")
+		(magit-status "Magit status")))
+(define-key global-map (kbd "C-x p g") 'consult-ripgrep)
+(define-key global-map (kbd "C-x p v") 'magit-status)
+
+;; hide show all!
+(add-hook 'prog-mode-hook 'hs-minor-mode)
 (progn
   (setq hs-minor-mode-map (make-sparse-keymap))
   (define-key hs-minor-mode-map (kbd "C-c h s a") 'hs-show-all)
@@ -362,6 +405,7 @@
                                                  (html-mode)
                                                  (flycheck-mode -1))))
 
+;; Don't ask why I don't just use doom-modeline
 (use-package diminish
   :config
   (diminish 'which-key-mode)
@@ -379,6 +423,8 @@
 			(lambda () (diminish 'lsp-lens-mode)))
   (add-hook 'paredit-mode-hook
 			(lambda () (diminish 'paredit-mode "par")))
+  (add-hook 'hs-minor-mode-hook
+			(lambda () (diminish 'hs-minor-mode)))
   (diminish 'projectile-mode)
   (diminish 'tree-sitter-mode)
   (diminish 'flycheck-mode)
