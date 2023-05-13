@@ -16,26 +16,26 @@
   :custom (straight-use-package-by-default t))
 
 ;; Set Emacs screen bounds when not on terminal
-;; (if (display-graphic-p)
-;;     (progn
-;;       (set-face-attribute 'default nil :height 160)
-;;       (setq initial-frame-alist
-;;             '(
-;;               (tool-bar-lines . 0)
-;;               (width . 90) ; chars
-;;               (height . 40) ; lines
-;;               (fullscreen . maximized)
-;; 	      ))
-;;       (setq default-frame-alist
-;;             '(
-;;               (tool-bar-lines . 0)
-;;               (width . 90)
-;;               (height . 40)
-;;               (fullscreen . maximized)
-;; 	      )))
-;;   (progn
-;;     (setq initial-frame-alist '( (tool-bar-lines . 0)))
-;;     (setq default-frame-alist '( (tool-bar-lines . 0)))))
+(if (display-graphic-p)
+    (progn
+      (set-face-attribute 'default nil :height 160)
+      (setq initial-frame-alist
+            '(
+              (tool-bar-lines . 0)
+              (width . 90) ; chars
+              (height . 40) ; lines
+              (fullscreen . maximized)
+	      ))
+      (setq default-frame-alist
+            '(
+              (tool-bar-lines . 0)
+              (width . 90)
+              (height . 40)
+              (fullscreen . maximized)
+	      )))
+  (progn
+    (setq initial-frame-alist '( (tool-bar-lines . 0)))
+    (setq default-frame-alist '( (tool-bar-lines . 0)))))
 
 (use-package ns-auto-titlebar
   :init (when (eq system-type 'darwin) (ns-auto-titlebar-mode)))
@@ -52,18 +52,11 @@
   (load-theme 'doom-vibrant t)
   (doom-themes-org-config))
 
-;; (use-package smart-mode-line
-;;   :init (sml/setup)
-;;   :config (setq sml/theme 'respectful)
-;;   (setq sml/shorten-directory t)
-;;   (setq sml/name-width 20))
-
 (use-package solaire-mode
   :init (solaire-global-mode +1))
 
 (use-package dimmer
-  :init
-  (dimmer-mode t)
+  :init (dimmer-mode t)
   :config
   (dimmer-configure-which-key)
   (dimmer-configure-magit)
@@ -76,8 +69,7 @@
   :init (exec-path-from-shell-initialize))
 
 (use-package dashboard
-  :init
-  (dashboard-setup-startup-hook)
+  :init (dashboard-setup-startup-hook)
   :bind (:map dashboard-mode-map
 			  ("n" . dashboard-next-line)
 			  ("p" . dashboard-previous-line))
@@ -94,13 +86,16 @@
 (use-package popper
   :init
   (setq popper-reference-buffers
-	'("\\*vterm\\*$" vterm-mode
-	  "^\\*cider-repl.*"
+	'("\\*vterm\\*$" vterm-mode ; vterm
+	  "^\\*cider-repl.*" ; cider repl
+	  "\\*.* Launch.*" ; DAP debug output
 	  help-mode))
   (popper-mode +1)
   :bind (("C-'"   . popper-toggle-latest)
          ("C-\""  . popper-cycle)
-         ("C-M-'" . popper-toggle-type)))
+         ("C-M-'" . popper-toggle-type))
+  :config
+  (setq popper-mode-line nil))
 
 ;; Editing enhancements
 (use-package vertico
@@ -120,7 +115,8 @@
   :hook (completion-list-mode . consult-preview-at-point-mode))
 
 (use-package marginalia
-  :init (marginalia-mode 1))
+  :init
+  (marginalia-mode 1))
 
 (use-package orderless
   :config
@@ -149,7 +145,7 @@
 			  ("C-c p s" . consult-ripgrep))
   :config
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  (setq projectile-indexing-method 'native))
+  (setq projectile-indexing-method 'alien))
 
 (use-package treemacs
   :bind (:map global-map ("C-c t t" . treemacs))
@@ -214,12 +210,16 @@
   :hook ((c-mode . lsp)
 		 (c++-mode . lsp)
 		 (rust-mode . lsp)
+		 (go-mode . lsp)
 		 (clojure-mode . lsp)
 		 (cider-repl-mode . lsp)
 		 (lsp-mode . lsp-enable-which-key-integration))
+  :bind (:map lsp-mode-map
+			  ("C-c l t" . lsp-semantic-tokens-mode))
   :config
   (setq lsp-insert-final-newline nil)
   (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-enable-on-type-formatting nil)
   :commands lsp)
 (setq lsp-keymap-prefix "C-c l")
 
@@ -270,8 +270,13 @@
   :config (yas-reload-all)
   :hook (company-mode . yas-minor-mode))
 
+(use-package eros
+  :init (eros-mode 1))
+
 ;; C/C++ Settings
-(setq c-backspace-function 'delete-backward-char)
+(setq-default c-basic-offset 4
+			  tab-width 4
+			  indent-tabs-mode t)
 (setq c-hungry-delete-key t)
 
 ;; LLVM IR highlighting
@@ -284,14 +289,16 @@
 ;; Rust support
 (use-package rust-mode)
 
+;; Go support
+(use-package go-mode)
+
 (use-package paredit
   :hook ((clojure-mode . paredit-mode)
 		 (cider-repl-mode . paredit-mode)
 		 (emacs-lisp-mode . paredit-mode)))
 
 ;; Clojure support
-(use-package clojure-mode
-  :hook (clojure-mode . lsp-semantic-tokens-mode))
+(use-package clojure-mode)
 (use-package cider
   :hook (cider-repl-mode . company-mode))
 
@@ -325,7 +332,6 @@
       ns-option-modifier        'meta
       mac-right-option-modifier 'none
       ns-right-option-modifier  'none)
-(setq-default tab-width 4)
 
 ;; (Add-hook 'prog-mode-hook 'hs-minor-mode)
 (progn
@@ -375,4 +381,5 @@
 			(lambda () (diminish 'paredit-mode "par")))
   (diminish 'projectile-mode)
   (diminish 'tree-sitter-mode)
-  (diminish 'flycheck-mode))
+  (diminish 'flycheck-mode)
+  (diminish 'git-gutter-mode))
