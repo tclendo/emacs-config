@@ -16,26 +16,26 @@
   :custom (straight-use-package-by-default t))
 
 ;; Set Emacs screen bounds when not on terminal
-;; (if (display-graphic-p)
-;;     (progn
-;;       (set-face-attribute 'default nil :height 160)
-;;       (setq initial-frame-alist
-;;             '(
-;;               (tool-bar-lines . 0)
-;;               (width . 90) ; chars
-;;               (height . 40) ; lines
-;;               (fullscreen . maximized)
-;; 	      ))
-;;       (setq default-frame-alist
-;;             '(
-;;               (tool-bar-lines . 0)
-;;               (width . 90)
-;;               (height . 40)
-;;               (fullscreen . maximized)
-;; 	      )))
-;;   (progn
-;;     (setq initial-frame-alist '( (tool-bar-lines . 0)))
-;;     (setq default-frame-alist '( (tool-bar-lines . 0)))))
+(if (display-graphic-p)
+    (progn
+      (set-face-attribute 'default nil :height 160)
+      (setq initial-frame-alist
+            '(
+              (tool-bar-lines . 0)
+              (width . 90) ; chars
+              (height . 40) ; lines
+              (fullscreen . maximized)
+	      ))
+      (setq default-frame-alist
+            '(
+              (tool-bar-lines . 0)
+              (width . 90)
+              (height . 40)
+              (fullscreen . maximized)
+	      )))
+  (progn
+    (setq initial-frame-alist '( (tool-bar-lines . 0)))
+    (setq default-frame-alist '( (tool-bar-lines . 0)))))
 
 ;; Install fonts
 (use-package all-the-icons
@@ -245,10 +245,11 @@
   (setq lsp-ui-doc-show-with-mouse nil))
 
 ;; Faster syntax highlighting
-(use-package tree-sitter)
+(use-package tree-sitter
+  :init
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
 (use-package tree-sitter-langs)
-(global-tree-sitter-mode)
-(add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
 
 ;; FIXME does this do what it's supposed to?
 (use-package dtrt-indent
