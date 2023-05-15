@@ -39,13 +39,12 @@
 
 ;; Install fonts
 (use-package all-the-icons
-  :init
-  ;; (all-the-icons-install-fonts)
+  :init ;; (all-the-icons-install-fonts)
   :if (display-graphic-p))
 
 ;; Set the theme
 (use-package doom-themes
-  :config 
+  :config
   (load-theme 'doom-solarized-dark-high-contrast t)
   (doom-themes-org-config))
 
@@ -259,7 +258,7 @@
 (use-package hl-todo
   :init (global-hl-todo-mode 1)
   :config (setq hl-todo-keyword-faces
-				'(("TODO"   . "#FF0000")
+				'(("TODO"   . "#FFFF00")
 				  ("FIXME"  . "#FF0000")
 				  ("DEBUG"  . "#A020F0")
 				  ("GOTCHA" . "#FF4500")
